@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08080F">
+  <title>Run Addict Admin</title>
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="admin-body">
+  <div id="admin-login-screen" class="admin-login-screen">
+    <div class="auth-container">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <h1 class="auth-brand">Admin Console</h1>
+        <p class="auth-tagline">Challenge operations, Strava configuration, and reward fulfillment.</p>
+      </div>
+      <form onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="admin-username">Username</label>
+          <input type="text" class="form-input" id="admin-username" placeholder="admin" autocomplete="username" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="admin-password">Password</label>
+          <input type="password" class="form-input" id="admin-password" placeholder="admin" autocomplete="current-password" required>
+        </div>
+        <button class="btn btn-primary btn-lg w-full" type="submit">Login as Admin</button>
+      </form>
+      <a class="admin-back-link" href="index.html">Back to user app</a>
+    </div>
+  </div>
+
+  <div id="admin-dashboard-content" style="display:none;">
+    <header class="admin-header">
+      <div class="admin-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 12h-4l-3 7L9 5l-3 7H2"></path>
+        </svg>
+        <span>Run Addict Admin</span>
+      </div>
+      <div class="admin-header-actions">
+        <a href="index.html" class="btn btn-secondary btn-sm" target="_blank" rel="noopener">Open User App</a>
+        <button class="btn btn-danger btn-sm" type="button" onclick="handleAdminLogout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="admin-container">
+      <section class="admin-stats-grid">
+        <article class="stat-card">
+          <strong id="stat-total-users">0</strong>
+          <span>Total Users</span>
+        </article>
+        <article class="stat-card">
+          <strong id="stat-active-challenges">0</strong>
+          <span>Active Challenges</span>
+        </article>
+        <article class="stat-card">
+          <strong id="stat-total-events">0</strong>
+          <span>Events</span>
+        </article>
+        <article class="stat-card">
+          <strong id="stat-flagged-runs">0</strong>
+          <span>Flagged Runs</span>
+        </article>
+        <article class="stat-card">
+          <strong id="stat-pending-ship">0</strong>
+          <span>Pending Shipments</span>
+        </article>
+      </section>
+
+      <section class="admin-card">
+        <div class="admin-card-title">
+          <span>Deployment Configuration</span>
+          <span class="badge badge-outline">Required for live connectors</span>
+        </div>
+        <form class="admin-config-grid" onsubmit="saveAdminConfig(event)">
+          <div class="form-group">
+            <label class="form-label" for="config-shipping-url">Shipping Portal URL</label>
+            <input type="url" class="form-input" id="config-shipping-url" placeholder="https://shipping.example">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="config-strava-client-id">Strava Client ID</label>
+            <input type="text" class="form-input" id="config-strava-client-id" placeholder="123456">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="config-strava-exchange-url">Strava Exchange API URL</label>
+            <input type="url" class="form-input" id="config-strava-exchange-url" placeholder="https://api.example.com/exchange">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="config-google-client-id">Google Client ID</label>
+            <input type="text" class="form-input" id="config-google-client-id" placeholder="Google OAuth client ID">
+          </div>
+          <div class="admin-config-actions">
+            <p>Strava needs a backend exchange endpoint so the app never exposes a client secret in the browser.</p>
+            <button class="btn btn-primary" type="submit">Save Configuration</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="admin-toolbar">
+        <div>
+          <h2>Operational Panels</h2>
+          <p>Create challenges and events, review suspicious activities, and fulfill reward claims.</p>
+        </div>
+        <div class="admin-toolbar-actions">
+          <button class="btn btn-secondary" type="button" onclick="openCreateEventModal()">Create Event</button>
+          <button class="btn btn-primary" type="button" onclick="openCreateChallengeModal()">Create Challenge</button>
+        </div>
+      </section>
+
+      <div class="admin-grid">
+        <section class="admin-card">
+          <div class="admin-card-title">
+            <span>Challenge Builder</span>
+            <span class="badge badge-outline" id="badge-challenges-count">0</span>
+          </div>
+          <div id="admin-challenges-list" class="admin-list"></div>
+        </section>
+
+        <section class="admin-card">
+          <div class="admin-card-title">
+            <span>Event Builder</span>
+            <span class="badge badge-outline" id="badge-events-count">0</span>
+          </div>
+          <div id="admin-events-list" class="admin-list"></div>
+        </section>
+
+        <section class="admin-card">
+          <div class="admin-card-title">
+            <span>Anti-Cheat Review Queue</span>
+            <span class="badge badge-red" id="badge-flagged-count">0</span>
+          </div>
+          <div id="admin-flagged-list" class="admin-list"></div>
+        </section>
+      </div>
+
+      <section class="admin-card">
+        <div class="admin-card-title">
+          <span>Reward Fulfillment</span>
+          <span class="badge badge-outline">Copy details into your shipping portal</span>
+        </div>
+        <div class="table-container admin-table">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Receiver</th>
+                <th>Reward</th>
+                <th>Size</th>
+                <th>Delivery</th>
+                <th>Status</th>
+                <th>Tracking</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-fulfillment-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="challenge-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="challenge-modal-title">Create Challenge</h3>
+        <button class="modal-close" type="button" onclick="closeModal('challenge-modal')">&times;</button>
+      </div>
+      <form id="challenge-form" onsubmit="submitChallengeForm(event)">
+        <div class="modal-body">
+          <input type="hidden" id="challenge-edit-id">
+          <div class="form-group">
+            <label class="form-label" for="challenge-name">Challenge Name</label>
+            <input type="text" class="form-input" id="challenge-name" placeholder="July Distance League" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="challenge-desc">Description and Rules</label>
+            <textarea class="form-textarea" id="challenge-desc" placeholder="Explain what runners need to do and who wins." required></textarea>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="challenge-type">Challenge Type</label>
+              <select class="form-select" id="challenge-type" required>
+                <option value="distance">Distance in km</option>
+                <option value="elevation">Elevation gain in meters</option>
+                <option value="streak">Daily running streak</option>
+                <option value="pace">Fastest qualifying run</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="challenge-goal">Target Goal</label>
+              <input type="number" class="form-input" id="challenge-goal" min="1" step="0.1" placeholder="100" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="challenge-min-distance">Streak Minimum Distance Per Day</label>
+            <input type="number" class="form-input" id="challenge-min-distance" min="1" step="0.1" value="3">
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="challenge-start">Start Date</label>
+              <input type="date" class="form-input" id="challenge-start" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="challenge-end">End Date</label>
+              <input type="date" class="form-input" id="challenge-end" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="challenge-reward1">Completion Reward</label>
+            <input type="text" class="form-input" id="challenge-reward1" placeholder="Digital finisher badge" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="challenge-reward2">Top Performer Reward</label>
+            <input type="text" class="form-input" id="challenge-reward2" placeholder="Brand voucher">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="challenge-reward3">Physical Reward</label>
+            <input type="text" class="form-input" id="challenge-reward3" placeholder="Medal or gear">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" onclick="closeModal('challenge-modal')">Cancel</button>
+          <button class="btn btn-primary" type="submit">Save Challenge</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="event-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="event-modal-title">Create Event</h3>
+        <button class="modal-close" type="button" onclick="closeModal('event-modal')">&times;</button>
+      </div>
+      <form id="event-form" onsubmit="submitEventForm(event)">
+        <div class="modal-body">
+          <input type="hidden" id="event-edit-id">
+          <div class="form-group">
+            <label class="form-label" for="event-title">Event Name</label>
+            <input type="text" class="form-input" id="event-title" placeholder="Sunday 10K Prize Run" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="event-desc">Event Details</label>
+            <textarea class="form-textarea" id="event-desc" placeholder="Tell runners what the event is, who it is for, and how prizes are awarded." required></textarea>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="event-city">City</label>
+              <input type="text" class="form-input" id="event-city" placeholder="Mumbai" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="event-category">Event Category</label>
+              <select class="form-select" id="event-category" required>
+                <option value="race">Race</option>
+                <option value="special">Special Event</option>
+                <option value="community">Community Run</option>
+                <option value="virtual">Virtual Event</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="event-date">Event Date</label>
+              <input type="date" class="form-input" id="event-date" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="event-venue">Venue</label>
+              <input type="text" class="form-input" id="event-venue" placeholder="Bandra Fort Promenade" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="event-address">Full Address</label>
+            <input type="text" class="form-input" id="event-address" placeholder="Meetup point, parking notes, or map pin">
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="event-distance">Distance</label>
+              <input type="text" class="form-input" id="event-distance" placeholder="10K / 5K / Trail 12K" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="event-slots">Available Slots</label>
+              <input type="number" class="form-input" id="event-slots" min="1" step="1" placeholder="100" required>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="event-entry-fee">Entry Fee</label>
+              <input type="text" class="form-input" id="event-entry-fee" placeholder="Free / Rs 499">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="event-status">Registration Status</label>
+              <select class="form-select" id="event-status" required>
+                <option value="open">Open</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="event-prize1">Prize 1</label>
+            <input type="text" class="form-input" id="event-prize1" placeholder="Winner trophy and brand voucher" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="event-prize2">Prize 2</label>
+            <input type="text" class="form-input" id="event-prize2" placeholder="Runner-up medal">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="event-prize3">Prize 3</label>
+            <input type="text" class="form-input" id="event-prize3" placeholder="Finisher perks">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" onclick="closeModal('event-modal')">Cancel</button>
+          <button class="btn btn-primary" type="submit">Save Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="shipping-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Fulfill Shipment</h3>
+        <button class="modal-close" type="button" onclick="closeModal('shipping-modal')">&times;</button>
+      </div>
+      <form onsubmit="submitShippingForm(event)">
+        <div class="modal-body">
+          <p class="modal-intro">Add shipping details for <strong id="shipping-winner-name"></strong>.</p>
+          <div class="form-group">
+            <label class="form-label" for="ship-carrier">Carrier</label>
+            <select class="form-select" id="ship-carrier" required>
+              <option>Delhivery</option>
+              <option>Blue Dart</option>
+              <option>DTDC</option>
+              <option>India Post</option>
+              <option>Shiprocket</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ship-tracking">Tracking Number</label>
+            <input type="text" class="form-input" id="ship-tracking" placeholder="DEL123456789" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ship-tracking-url">Tracking URL</label>
+            <input type="url" class="form-input" id="ship-tracking-url" placeholder="https://tracking.example/order">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ship-note">Internal Shipping Note</label>
+            <textarea class="form-textarea" id="ship-note" placeholder="Portal order ID, pickup slot, or handoff note"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" onclick="closeModal('shipping-modal')">Cancel</button>
+          <button class="btn btn-primary" type="submit">Mark Shipped</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="address-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Delivery Details</h3>
+        <button class="modal-close" type="button" onclick="closeModal('address-modal')">&times;</button>
+      </div>
+      <div class="modal-body" id="address-modal-content"></div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" type="button" onclick="closeModal('address-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+  <script src="js/admin.js"></script>
+</body>
+</html>

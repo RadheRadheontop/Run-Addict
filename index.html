@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="Run Addict - verified running challenges, leaderboards, and reward fulfillment.">
+  <meta name="theme-color" content="#08080F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Run Addict">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%2308080F'/%3E%3Cpath d='M24 70h12l8-36 13 22 8-16h12' stroke='%23FF4D1C' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+  <title>Run Addict</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="auth-screen" id="auth-screen">
+    <div class="auth-container">
+      <div class="auth-logo">
+        <div class="auth-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 12h-4l-3 7L9 5l-3 7H2"></path>
+          </svg>
+        </div>
+        <h1 class="auth-brand">Run Addict</h1>
+        <p class="auth-tagline">Verified running challenges, leaderboards, and real reward fulfillment.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" type="button" onclick="switchAuthTab('signin')">Sign In</button>
+        <button class="auth-tab" type="button" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <div class="auth-form active" id="auth-signin">
+        <div class="form-group">
+          <label class="form-label" for="signin-email">Email</label>
+          <input type="email" class="form-input" id="signin-email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signin-password">Password</label>
+          <input type="password" class="form-input" id="signin-password" placeholder="Minimum 8 characters" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary btn-lg w-full" type="button" onclick="handleSignIn()">Sign In</button>
+        <div class="auth-divider"><span>or</span></div>
+        <div class="google-signin-slot" id="google-signin-signin"></div>
+        <button class="btn btn-social w-full" type="button" onclick="handleGoogleAuth()">
+          <span class="google-mark">G</span>
+          Open Google Prompt
+        </button>
+      </div>
+
+      <div class="auth-form" id="auth-signup">
+        <div class="form-group">
+          <label class="form-label" for="signup-name">Full Name</label>
+          <input type="text" class="form-input" id="signup-name" placeholder="Your name" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signup-email">Email</label>
+          <input type="email" class="form-input" id="signup-email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signup-password">Password</label>
+          <input type="password" class="form-input" id="signup-password" placeholder="Minimum 8 characters" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="signup-state">Home State</label>
+          <select class="form-select" id="signup-state">
+            <option value="">Select your state</option>
+            <option>Maharashtra</option>
+            <option>Karnataka</option>
+            <option>Delhi</option>
+            <option>Tamil Nadu</option>
+            <option>Haryana</option>
+            <option>Gujarat</option>
+            <option>Rajasthan</option>
+            <option>Kerala</option>
+            <option>Punjab</option>
+            <option>West Bengal</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-lg w-full" type="button" onclick="handleSignUp()">Create Account</button>
+        <div class="auth-divider"><span>or</span></div>
+        <div class="google-signin-slot" id="google-signin-signup"></div>
+        <button class="btn btn-social w-full" type="button" onclick="handleGoogleAuth()">
+          <span class="google-mark">G</span>
+          Open Google Prompt
+        </button>
+      </div>
+
+      <p class="auth-legal">Google and Strava require admin configuration before deployment.</p>
+    </div>
+  </div>
+
+  <div class="onboarding-overlay hidden" id="onboarding-overlay">
+    <div class="onboarding-card">
+      <div id="onboarding-steps"></div>
+      <div class="onboarding-dots" id="onboarding-dots"></div>
+      <button class="btn btn-primary btn-lg w-full" id="onboarding-next-btn" type="button" onclick="nextOnboardingStep()">Continue</button>
+      <button class="btn btn-ghost w-full" type="button" onclick="skipOnboarding()">Skip intro</button>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <div class="app-shell hidden" id="app-shell">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title" id="page-title">Dashboard</h1>
+        <p class="page-subtitle" id="page-subtitle">Welcome back</p>
+      </div>
+      <div class="page-header-actions">
+        <button class="header-btn" type="button" onclick="toggleNotifications()" title="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+          </svg>
+        </button>
+        <button class="header-avatar" type="button" onclick="navigateTo('profile')" id="header-avatar-btn">RA</button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <section class="page-section active" id="page-dashboard">
+        <div class="status-card">
+          <div class="status-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 12h-4l-3 7L9 5l-3 7H2"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 id="streak-headline">No active streak</h2>
+            <p id="streak-subheadline">Connect Strava to start counting verified runs.</p>
+          </div>
+        </div>
+
+        <section class="dashboard-hero">
+          <div class="hero-copy">
+            <span class="eyebrow">Verified Momentum</span>
+            <h2 id="hero-distance">0.0 km</h2>
+            <p id="hero-subtitle">Your next synced run starts the board.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary btn-sm" type="button" onclick="navigateTo('profile')">Connect Strava</button>
+              <button class="btn btn-secondary btn-sm" type="button" onclick="navigateTo('challenges')">View Challenges</button>
+            </div>
+          </div>
+          <div class="hero-ring" aria-hidden="true">
+            <svg viewBox="0 0 120 120">
+              <circle class="hero-ring-track" cx="60" cy="60" r="48"></circle>
+              <circle class="hero-ring-fill" id="hero-ring-fill" cx="60" cy="60" r="48"></circle>
+            </svg>
+            <div>
+              <strong id="hero-progress">0%</strong>
+              <span>Weekly target</span>
+            </div>
+          </div>
+        </section>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-icon primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v20"></path><path d="M5 12h14"></path></svg>
+            </span>
+            <strong id="dashboard-distance">0.0 km</strong>
+            <span>Total Distance</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 4a2 2 0 1 0 0 .01"></path><path d="M7 21l3-6"></path><path d="M12 21l-2-6 3-4 3 3 3-1"></path></svg>
+            </span>
+            <strong id="dashboard-runs">0</strong>
+            <span>Total Runs</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon gold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3v6a6 6 0 0 0 12 0V3"></path><path d="M12 15v6"></path><path d="M8 21h8"></path></svg>
+            </span>
+            <strong id="dashboard-streak">0 days</strong>
+            <span>Streak</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v18h18"></path><path d="M7 14l3-3 3 2 5-7"></path></svg>
+            </span>
+            <strong id="dashboard-rank">--</strong>
+            <span>State Rank</span>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="section-title">
+            <span>Weekly Activity</span>
+          </div>
+          <div class="chart-area" id="weekly-chart"></div>
+          <div class="chart-summary">
+            <span id="weekly-total">Total: 0.0 km</span>
+            <span id="weekly-avg">Avg: 0.0 km/day</span>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-title">
+            <span>Recent Runs</span>
+            <button class="btn btn-ghost btn-sm" type="button" onclick="navigateTo('profile')">View All</button>
+          </div>
+          <div id="recent-runs"></div>
+        </section>
+
+        <section>
+          <div class="section-title">
+            <span>Active Challenges</span>
+            <button class="btn btn-ghost btn-sm" type="button" onclick="navigateTo('challenges')">All</button>
+          </div>
+          <div id="active-challenges-widget"></div>
+        </section>
+      </section>
+
+      <section class="page-section" id="page-challenges">
+        <div class="tabs">
+          <button class="tab-btn active" type="button" onclick="filterChallenges('all', this)">All</button>
+          <button class="tab-btn" type="button" onclick="filterChallenges('active', this)">Active</button>
+          <button class="tab-btn" type="button" onclick="filterChallenges('upcoming', this)">Upcoming</button>
+          <button class="tab-btn" type="button" onclick="filterChallenges('joined', this)">Joined</button>
+        </div>
+        <div class="challenges-grid" id="challenges-grid"></div>
+      </section>
+
+      <section class="page-section" id="page-events">
+        <div class="status-card events-kicker">
+          <div class="status-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M7 3v18"></path><path d="M17 3v18"></path><path d="M7 7h10"></path><path d="M7 17h10"></path>
+            </svg>
+          </div>
+          <div>
+            <h2>Live events, real prizes</h2>
+            <p>Register for admin-published races, club runs, and prize events.</p>
+          </div>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" type="button" onclick="filterEvents('all', this)">All</button>
+          <button class="tab-btn" type="button" onclick="filterEvents('open', this)">Open</button>
+          <button class="tab-btn" type="button" onclick="filterEvents('special', this)">Special</button>
+          <button class="tab-btn" type="button" onclick="filterEvents('registered', this)">Registered</button>
+        </div>
+        <div class="events-grid" id="events-grid"></div>
+      </section>
+
+      <section class="page-section" id="page-leaderboard">
+        <div class="toolbar">
+          <select class="form-select" id="state-select" onchange="renderLeaderboard()">
+            <option>Maharashtra</option>
+            <option>Karnataka</option>
+            <option>Delhi</option>
+            <option>Tamil Nadu</option>
+            <option>Haryana</option>
+            <option>Gujarat</option>
+            <option>Rajasthan</option>
+            <option>Kerala</option>
+            <option>Punjab</option>
+            <option>West Bengal</option>
+          </select>
+          <span class="badge badge-outline">Verified distance</span>
+        </div>
+        <div class="leaderboard-top3" id="leaderboard-top3"></div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr><th>Rank</th><th>Runner</th><th>Distance</th><th>Runs</th></tr>
+            </thead>
+            <tbody id="leaderboard-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="page-section" id="page-rewards">
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-icon gold"></span>
+            <strong id="rewards-medals-count">0</strong>
+            <span>Badges</span>
+          </article>
+          <article class="stat-card">
+            <span class="stat-icon green"></span>
+            <strong id="rewards-shipped-count">0</strong>
+            <span>Shipped</span>
+          </article>
+          <article class="stat-card wide">
+            <span class="stat-icon primary"></span>
+            <strong id="rewards-available-count">0</strong>
+            <span>Ready to Claim</span>
+          </article>
+        </div>
+        <div class="section-title">Your Rewards</div>
+        <div class="rewards-grid" id="rewards-grid"></div>
+        <div class="section-title">Verified Badges</div>
+        <div class="medals-grid" id="medals-grid"></div>
+      </section>
+
+      <section class="page-section" id="page-profile">
+        <section class="profile-hero">
+          <div class="profile-avatar-large" id="profile-avatar-large">RA</div>
+          <h2 id="profile-name-display">Runner</h2>
+          <p id="profile-handle-display">@runner</p>
+          <span id="profile-state-display">Maharashtra</span>
+          <div class="profile-stats-row">
+            <div><strong id="profile-km">0.0</strong><span>KM</span></div>
+            <div><strong id="profile-runs">0</strong><span>Runs</span></div>
+            <div><strong id="profile-streak">0</strong><span>Streak</span></div>
+            <div><strong id="profile-rank-display">--</strong><span>Rank</span></div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-title">Connected Service</div>
+          <div class="service-item">
+            <div class="service-left">
+              <div class="service-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M13.2 6l-4.1 8.2h3l1.1-2.2 1.1 2.2h3L13.2 6z"></path>
+                  <path d="M17.4 14.2l-2.1 4.1h4.2l-2.1-4.1z"></path>
+                </svg>
+              </div>
+              <div>
+                <strong>Strava</strong>
+                <span class="service-status disconnected" id="strava-status-text">Not connected</span>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="strava-connect-btn" type="button" onclick="toggleStravaConnection()">Connect</button>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-title">Run History</div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr><th>Run</th><th>Dist</th><th>Elev</th><th>Pace</th><th>Status</th></tr>
+              </thead>
+              <tbody id="profile-runs-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-title">Settings</div>
+          <div class="panel">
+            <div class="form-group">
+              <label class="form-label" for="settings-name">Display Name</label>
+              <input type="text" class="form-input" id="settings-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="settings-handle">Username</label>
+              <input type="text" class="form-input" id="settings-handle">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="settings-state">Home State</label>
+              <select class="form-select" id="settings-state">
+                <option>Maharashtra</option>
+                <option>Karnataka</option>
+                <option>Delhi</option>
+                <option>Tamil Nadu</option>
+                <option>Haryana</option>
+                <option>Gujarat</option>
+                <option>Rajasthan</option>
+                <option>Kerala</option>
+                <option>Punjab</option>
+                <option>West Bengal</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" type="button" onclick="saveProfileSettings()">Save Changes</button>
+          </div>
+          <div class="panel">
+            <button class="btn btn-danger w-full" type="button" onclick="handleSignOut()">Sign Out</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="bottom-nav-item active" type="button" data-page="dashboard" onclick="navigateTo('dashboard')">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg></span>
+        <span class="bottom-nav-label">Home</span>
+      </button>
+      <button class="bottom-nav-item" type="button" data-page="challenges" onclick="navigateTo('challenges')">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 22V4"></path><path d="M5 4h12l-2 5 2 5H5"></path></svg></span>
+        <span class="bottom-nav-label">Challenges</span>
+        <span class="bottom-nav-badge" id="bottom-challenges-badge" style="display:none;">0</span>
+      </button>
+      <button class="bottom-nav-item" type="button" data-page="events" onclick="navigateTo('events')">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3v18"></path><path d="M17 3v18"></path><path d="M7 7h10"></path><path d="M7 17h10"></path></svg></span>
+        <span class="bottom-nav-label">Events</span>
+        <span class="bottom-nav-badge" id="bottom-events-badge" style="display:none;">0</span>
+      </button>
+      <button class="bottom-nav-item" type="button" data-page="leaderboard" onclick="navigateTo('leaderboard')">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"></path></svg></span>
+        <span class="bottom-nav-label">Ranks</span>
+      </button>
+      <button class="bottom-nav-item" type="button" data-page="rewards" onclick="navigateTo('rewards')">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path></svg></span>
+        <span class="bottom-nav-label">Rewards</span>
+        <span class="bottom-nav-badge" id="bottom-rewards-badge" style="display:none;">0</span>
+      </button>
+      <button class="bottom-nav-item" type="button" data-page="profile" onclick="navigateTo('profile')">
+        <span class="bottom-nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+        <span class="bottom-nav-label">Profile</span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="modal-overlay" id="challenge-detail-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Challenge Details</h3>
+        <button class="modal-close" type="button" onclick="closeModal('challenge-detail-modal')">&times;</button>
+      </div>
+      <div class="modal-body" id="challenge-detail-body"></div>
+      <div class="modal-footer" id="challenge-detail-footer"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="claim-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Claim Reward</h3>
+        <button class="modal-close" type="button" onclick="closeModal('claim-modal')">&times;</button>
+      </div>
+      <form onsubmit="submitClaimForm(event)">
+        <div class="modal-body">
+          <p class="modal-intro">Submit delivery details for <strong id="claim-reward-name"></strong>. Admin will copy this information into the shipping portal.</p>
+          <div class="form-group">
+            <label class="form-label" for="claim-fullname">Full Name</label>
+            <input type="text" class="form-input" id="claim-fullname" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="claim-email">Email</label>
+            <input type="email" class="form-input" id="claim-email" required>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="claim-phone">Phone Number</label>
+              <input type="tel" class="form-input" id="claim-phone" placeholder="9876543210" pattern="[0-9]{10}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="claim-alt-phone">Alternate Phone</label>
+              <input type="tel" class="form-input" id="claim-alt-phone" placeholder="Optional" pattern="[0-9]{10}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="claim-address1">Address Line 1</label>
+            <input type="text" class="form-input" id="claim-address1" placeholder="House, flat, building" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="claim-address2">Address Line 2</label>
+            <input type="text" class="form-input" id="claim-address2" placeholder="Area, street, sector">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="claim-landmark">Landmark</label>
+            <input type="text" class="form-input" id="claim-landmark" placeholder="Optional">
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="claim-city">City</label>
+              <input type="text" class="form-input" id="claim-city" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="claim-state">State</label>
+              <input type="text" class="form-input" id="claim-state" required>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="claim-pincode">PIN Code</label>
+              <input type="text" class="form-input" id="claim-pincode" pattern="[0-9]{6}" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="claim-size">Apparel Size</label>
+              <select class="form-select" id="claim-size">
+                <option>Not applicable</option>
+                <option>XS</option>
+                <option>S</option>
+                <option>M</option>
+                <option>L</option>
+                <option>XL</option>
+                <option>XXL</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="claim-notes">Delivery Notes</label>
+            <textarea class="form-textarea" id="claim-notes" placeholder="Gate code, timing, or courier instructions"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" onclick="closeModal('claim-modal')">Cancel</button>
+          <button class="btn btn-primary" type="submit">Submit Claim</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
