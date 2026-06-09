@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "com.runaddict.app",
-        "sha256_cert_fingerprints": ["8C:B8:D0:F6:7A:A3:26:59:C4:D4:D3:3A:00:53:0C:BF:41:1C:89:41:6C:08:AB:C4:0C:D5:C2:80:13:A6:E0:D1"]
+        "sha256_cert_fingerprints": ["AC:03:F4:8F:0F:15:24:63:D7:56:26:34:37:D3:79:41:22:E9:32:DE:BF:29:8E:1D:71:8C:A8:01:41:77:5A:07"]
       }
     }]
