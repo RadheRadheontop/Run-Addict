@@ -1,16 +1,17 @@
-const CACHE_NAME = 'run-addict-v4';
+const CACHE_NAME = 'run-addict-v5';
+const BASE = new URL('.', self.location).pathname.replace(/\/+$/, '');
 
 const CACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/admin.html',
-  '/css/styles.css',
-  '/js/app.js',
-  '/js/admin.js',
-  '/manifest.json',
-  '/assets/icon-192.png',
-  '/assets/icon-512.png',
-  '/assets/apple-touch-icon.png'
+  BASE + '/',
+  BASE + '/index.html',
+  BASE + '/admin.html',
+  BASE + '/css/styles.css',
+  BASE + '/js/app.js',
+  BASE + '/js/admin.js',
+  BASE + '/manifest.json',
+  BASE + '/assets/icon-192.png',
+  BASE + '/assets/icon-512.png',
+  BASE + '/assets/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
