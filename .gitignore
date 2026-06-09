@@ -1,9 +1,9 @@
-<<<<<<< HEAD
-"node_modules" 
-=======
 # Dependencies
 node_modules/
 vendor/
+
+# Python virtual env
+my_flask_env/
 
 # Environment and secrets
 .env
@@ -56,4 +56,5 @@ android/app/*.apk
 android/app/*.aab
 ios/build/
 *.ipa
->>>>>>> origin/main
+
+signing-key-info.txt

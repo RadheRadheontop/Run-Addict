@@ -1,13 +1,14 @@
 {
   "name": "run-addict",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "devDependencies": {},
+  "description": "Mobile-first PWA for verified running challenges, Strava-powered activity sync, leaderboards, events, rewards, and admin fulfillment.",
+  "main": "index.html",
   "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["running", "strava", "pwa", "challenges", "fitness"],
   "author": "",
   "license": "ISC",
   "type": "commonjs"

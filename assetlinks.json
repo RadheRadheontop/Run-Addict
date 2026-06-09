@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.runaddict.app",
+        "sha256_cert_fingerprints": ["8C:B8:D0:F6:7A:A3:26:59:C4:D4:D3:3A:00:53:0C:BF:41:1C:89:41:6C:08:AB:C4:0C:D5:C2:80:13:A6:E0:D1"]
+      }
+    }]
